@@ -11,14 +11,16 @@ let msg = 'Shall we play a game?'
 let userInput = '';
 let randomMax = 99; // allow user set of this? or by radio buttons??
 let randomMax2 = 9;
-var showProblem = false;
 let random1 = ref(0);
 var random2 = ref(0);
+let streakNumRef = ref(0);
+let scoreRef = ref(0);
 let gameStarted = ref(false);
 let corrIncorrMsg = ref('');
 let correct = ref(false);
 let error = ref(false);
 let showFeedBack = ref(false);
+let isCheckable = ref(true);
 //let userInput = ref('');
 
 watch(random1, (newR1, oldR1) => {
@@ -48,6 +50,18 @@ const hasFeedback = computed(() => {
   return showFeedBack.value;
 });
 
+const enableCheckButton = computed(() => {
+  return isCheckable.value;
+});
+
+const getScore = computed(() => {
+  return scoreRef.value;
+});
+
+const getStreakNum = computed(() => {
+  return streakNumRef.value;
+});
+
 function generateTwoRandomNums(){
   let r1, r2;
   r1 = Math.floor(Math.random() * randomMax);
@@ -66,9 +80,14 @@ function checkAnswer() {
   if(isCorrect) {
     correct.value = true;
     error.value = false;
+    streakNumRef.value++;
+    console.log(`streakNumRef.value = ${streakNumRef.value}`);
+    scoreRef.value = scoreRef.value + 10;
+    isCheckable.value = false;
   } else {
     correct.value = false;
     error.value = true;
+    streakNumRef.value = 0;
   }
   corrIncorrMsg.value = isCorrect ? ' Great job!' : " I'm sorry--pls try again...";
   //alert(' Your answer was: ' + userInput + corrIncorrMsg.value);
@@ -91,6 +110,7 @@ function resetAll() {
   correct.value = false;
   error.value = false;
   showFeedBack.value = false;
+  isCheckable.value = true;
 }
 //computed 
 
@@ -100,25 +120,27 @@ function resetAll() {
 
 <template>
     <div class="border-div">
-        Header Text--Math Practice
+        <div class="row centeredRow">
+          <div class="col-6 text-start">Score: {{ getScore }}</div>
+          <div class="col-6 text-end">Streak: {{ getStreakNum }}</div>
+        </div>
         <div class="row centeredRow">
           <h1>{{ msg }}</h1>
           <button class="btn btn-primary w-50" @click="setMathProblem()"> Want a new math problem? </button>
 
         </div>
         <br>
-        <div class="card w-100 ms-3 me-3">
+        <div class="card w-100">
           <div class="row centeredRow">
               <p class="ms3">What is {{ random1 }} x {{ random2 }}?</p>
           </div>
-          <!-- <div class="ms-3">You've chosen to attempt the problem! Showproblem? {{ showProblem }}</div> -->
           <input v-model="userInput" class="form-control w-25 ms-3 centeredInput" @keyup.enter="checkAnswer()" type="number">
           <br>
           <div class="row centeredRow">
-            <button class="btn btn-secondary w-50 mb-2" @click="checkAnswer()"> Check Answer! </button>
+            <button class="btn btn-secondary w-50 mb-2" @click="checkAnswer()" :inert="!enableCheckButton"> Check Answer! </button>
           </div>
         </div>
-        <div v-if="hasFeedback" class="card w-100 ms-3 me-3 mt-3 feedbackCard" :class="[ {correct : correctState}, {error : errorState} ]">
+        <div v-if="hasFeedback" class="card w-100 feedbackCard" :class="[ {correct : correctState}, {error : errorState} ]">
           <div class="row centeredRow" >
               <p class="ms3">{{ feedbackMsg }}</p>
           </div>
