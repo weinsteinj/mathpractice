@@ -8,7 +8,7 @@ createApp(()=> {
 //   generateTwoRandomNums();
 // });
 let msg = 'Shall we play a game?'
-let userInput = '';
+//let userInput = '';
 let randomMax = 9; // allow user set of this? or by radio buttons??
 let randomMax2 = 9;
 let random1 = ref(0);
@@ -22,7 +22,10 @@ let correct = ref(false);
 let error = ref(false);
 let showFeedBack = ref(false);
 let isCheckable = ref(true);
-//let userInput = ref('');
+const showToast = ref(false)
+const toastMessage = ref('')
+const toastTimeout = ref(null)
+let userInput = ref(''); 
 
 watch(random1, (newR1, oldR1) => {
   console.log('old random1 = ' + oldR1 + '; new random1 = ' + newR1 );
@@ -38,7 +41,7 @@ onMounted(() => setMathProblem())
 // });
 
 const feedbackMsg = computed(() => {
-  return `Your answer was: ${ userInput }. ${ corrIncorrMsg.value }`;
+  return `Your answer was: ${ userInput.value }. ${ corrIncorrMsg.value }`;
 });
 
 const correctState = computed(() => {
@@ -95,11 +98,11 @@ function setRandomMax(n,n2){
 }
 
 function checkAnswer() {
-  console.log('userInput = '+ userInput);
+  console.log('userInput = '+ userInput.value);
   console.log(`Random1 is ${random1.value} and Random2 is ${random2.value}!!`)
   let corrAnswer = random1.value * random2.value;
   //let msg = 'The correct answer is : ' + corrAnswer + '.';
-  let isCorrect = (Number(userInput) === corrAnswer);
+  let isCorrect = (Number(userInput.value) === corrAnswer);
   showFeedBack.value = true;
   if(isCorrect) {
     correct.value = true;
@@ -108,7 +111,7 @@ function checkAnswer() {
     console.log(`streakNumRef.value = ${streakNumRef.value}`);
     scoreRef.value = scoreRef.value + (5 * difficultyWeightRef.value );
     isCheckable.value = false;
-    setMathProblem();
+    handleCorrectAnswer();
   } else {
     correct.value = false;
     error.value = true;
@@ -118,7 +121,7 @@ function checkAnswer() {
   //alert(' Your answer was: ' + userInput + corrIncorrMsg.value);
 }
 function setMathProblem() {
-  resetAll()
+  resetAll();
   if(!gameStarted.value) {
     gameStarted.value = true;
     console.log('GAME ON!');
@@ -126,7 +129,7 @@ function setMathProblem() {
   const nums = generateTwoRandomNums(randomMax, randomMax2);
   random1.value = nums[0];
   random2.value = nums[1];
-  userInput = '';
+  userInput.value = '';
   console.log(`Random1 is ${nums[0]} and Random2 is ${nums[1]}!!`)
 }
 
@@ -136,6 +139,17 @@ function resetAll() {
   error.value = false;
   showFeedBack.value = false;
   isCheckable.value = true;
+}
+
+function handleCorrectAnswer() {
+  toastMessage.value = '🎉 Correct! Great job!'
+  showToast.value = true
+  // Hide toast after 2 seconds
+  clearTimeout(toastTimeout.value)
+  toastTimeout.value = setTimeout(() => {
+    showToast.value = false;
+    setMathProblem();
+  }, 2000)
 }
 //computed 
 
@@ -176,19 +190,28 @@ function resetAll() {
           <div class="row centeredRow">
               <p class="ms3">What is {{ random1 }} x {{ random2 }}?</p>
           </div>
-          <input v-model="userInput" class="form-control w-25 ms-3 centeredInput" @keyup.enter="checkAnswer()" type="number">
+          <input v-model="userInput" class="form-control w-25 ms-3 centeredInput" @keyup.enter="checkAnswer()" type="number" :inert="!enableCheckButton">
           <br>
           <div class="row centeredRow">
             <button class="btn btn-secondary w-50 mb-2" @click="checkAnswer()" :inert="!enableCheckButton"> Check Answer! </button>
           </div>
         </div>
-        <div v-if="hasFeedback" class="card w-100 feedbackCard" :class="[ {correct : correctState}, {error : errorState} ]">
+        <div v-show="hasFeedback" class="card w-100 feedbackCard" :class="[ {correct : correctState}, {error : errorState} ]">
           <div class="row centeredRow" >
               <p class="ms3">{{ feedbackMsg }}</p>
           </div>
         </div>
     </div>
+    <div
+      v-if="showToast"
+      class="toast"
+      :class="{show: showToast}"
+      style="position: fixed; top: 20px; left: 20px; background: #4caf50; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"
+    >
+    {{ toastMessage }}
+  </div>
 </template>
+
 <style lang="css">
 .border-div {
   box-sizing: border-box; 
