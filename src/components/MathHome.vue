@@ -108,6 +108,7 @@ function checkAnswer() {
     console.log(`streakNumRef.value = ${streakNumRef.value}`);
     scoreRef.value = scoreRef.value + (5 * difficultyWeightRef.value );
     isCheckable.value = false;
+    setMathProblem();
   } else {
     correct.value = false;
     error.value = true;

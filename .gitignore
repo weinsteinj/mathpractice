@@ -7,22 +7,34 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-.DS_Store
-dist
-dist-ssr
-coverage
-*.local
+# Node.js / Vue
+node_modules/
+dist/
+dist-ssr/
+coverage/
+.env
+.env.local
+.env.*.local
 
+# Cypress
+cypress/
+cypress.config.*
+cypress.json
+
+# Cypress Artifacts
 /cypress/videos/
 /cypress/screenshots/
 
 # Editor directories and files
-.vscode/*
+.vscode/
 !.vscode/extensions.json
-.idea
+.idea/
+.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# System files
+Thumbs.db
