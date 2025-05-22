@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && vite build",
     "deploy": "gh-pages -d dist",
+    "buildDeploy": "npm run build && npm run deploy",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
